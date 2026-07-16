@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtGui import QIcon, QAction
-from PySide6.QtCore import QSize
+from PySide6.QtGui import QFont, QFontDatabase
+from src.menu_bar import MenuBar
 import sys
 
 class App(QMainWindow):
@@ -10,25 +10,46 @@ class App(QMainWindow):
         self.setGeometry(100, 100, 600, 400)
         self.setWindowTitle(".gitui")
 
-        self.create_toolbar()
+        self.menu_bar = MenuBar(self)
+        self.menu_bar.setFont(QFont('Inter', 12))
+        self.setMenuBar(self.menu_bar)
 
-    def create_toolbar(self):
-        self.toolbar = self.addToolBar("Home")
-        self.toolbar.setMovable(False)
+    def _setup_font(self):
+        font_id = QFontDatabase.addApplicationFont("fonts/Inter-Regular.ttf")
+        if font_id != -1:
+            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+            font = QFont(font_family, 10)
+            self.setFont(font)
 
-        self.toolbar.setIconSize(QSize(24, 24))
+        font_id_mono = QFontDatabase.addApplicationFont("fonts/JetBrainsMono-Regular.ttf")
+        if font_id_mono != -1:
+            mono_family = QFontDatabase.applicationFontFamilies(font_id_mono)[0]
 
-        new_action = QAction(QIcon("icons/new-btn.svg"), "New", self)
-        self.toolbar.addAction(new_action)
-
-        new_action = QAction(QIcon("icons/open-btn.svg"), "Open", self)
-        self.toolbar.addAction(new_action)
-
-        new_action = QAction(QIcon("icons/refresh-btn.svg"), "Refresh", self)
-        self.toolbar.addAction(new_action)
-
-        new_action = QAction(QIcon("icons/commit-btn.svg"), "Commit", self)
-        self.toolbar.addAction(new_action)
+        self.setStyleSheet(r"""
+            /* Всё приложение */
+            QMainWindow, QDialog, QWidget {{
+                font-family: "Inter", "Segoe UI", "Arial", sans-serif;
+                font-size: 10pt;
+            }}
+            
+            /* Меню (чуть крупнее для удобства) */
+            QMenuBar {{
+                font-family: "Inter", "Segoe UI", "Arial", sans-serif;
+                font-size: 10pt;
+            }}
+            
+            /* Таблицы и лог (моноширинный) */
+            QTableWidget, QTextEdit, QPlainTextEdit, QListWidget {{
+                font-family: "JetBrains Mono", "Courier New", monospace;
+                font-size: 10pt;
+            }}
+            
+            /* Кнопки (жирный для акцента) */
+            QPushButton {{
+                font-weight: bold;
+                font-size: 10pt;
+            }}
+        """)
         
 if __name__ == '__main__':
     application = QApplication(sys.argv)
